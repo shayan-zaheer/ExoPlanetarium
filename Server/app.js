@@ -5,25 +5,20 @@ const cors = require("cors");
 const authRouter = require("./Router/authRoute");
 const quizRouter = require("./Router/quizRoute");
 const postRouter = require("./Router/postRoute");
-
 const chatbotRouter = require("./Router/chatbotRoute");
-// const chatbotRouter = require("./Router/chatbotRoute")
 
 const app = express();
 
-// defining Middlewares
 app.use(express.json());
 app.use(cookieParser());
 
 const allowedOrigins = [
-  "http://localhost:4173",
   "http://localhost:5173",
-  "exo-planetarium-pw2vl33lj-hashir-jamal-khans-projects.vercel.app",
+  
 ];
 
 const corsOptions = {
   origin: allowedOrigins,
-  // origin: process.env.NODE_ENV === "production" ? "http://localhost:4173" : "http://localhost:5173",
   credentials: true,
 };
 

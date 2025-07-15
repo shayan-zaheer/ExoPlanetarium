@@ -1,16 +1,14 @@
 const dotenv = require("dotenv");
-dotenv.config({
-    path: "./config.env", // configuration of .env file
-});
+dotenv.config();
 const app = require("./app");
 const mongoose = require("mongoose");
-// establishing connection of server
+
 process.on("uncaughtException", (err) => {
     console.log(err.name, err.message);
   console.log("Unhandled Rejection! Shutting down server");
   process.exit(1);
 });
-console.log(process.env.NODE_ENVIRO);
+console.log(process.env.NODE_ENV);
 mongoose
   .connect(process.env.CONN_STR, {})
   .then((conn) => {
@@ -19,10 +17,10 @@ mongoose
   .catch((error) => {
     console.log(error);
   });
-//Create Server
-const port = process.env.port || 3000;
+
+  const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {
-  console.log("Server has been started on http://localhost:3000");
+  console.log(`Server has been started on http://localhost:${port}`);
 });
 process.on("unhandledRejection", (err) => {
   console.log(err.name, err.message);
