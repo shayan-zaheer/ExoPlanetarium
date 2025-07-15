@@ -33,7 +33,7 @@ export default function Chatbot() {
 
             setUserPrompt("");
 
-            let res = await axios.post("http://localhost:3000/chatbot/askAi", {
+            let res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/chatbot/askAi`, {
                 userInp: userPrompt,
                 convHistory,
             });

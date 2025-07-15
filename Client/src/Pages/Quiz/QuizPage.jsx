@@ -38,12 +38,12 @@ const QuizPage = () => {
       setFetching(true);
       try {
         const response = await axios.get(
-          "http://localhost:3000/quiz/getQuestions",
+          `${import.meta.env.VITE_BACKEND_URL}/quiz/getQuestions`,
           { withCredentials: true }
         );
         setData(getRandomElements(response.data.data.questions, 10));
         const highScoreRes = await axios.get(
-          "http://localhost:3000/quiz/getHighScore",
+          `${import.meta.env.VITE_BACKEND_URL}/quiz/getHighScore`,
           { withCredentials: true }
         );
         setHighScore(highScoreRes.data.data.highScore);
@@ -65,7 +65,7 @@ const QuizPage = () => {
   };
   if (counter > 9 && score > highScore) {
     axios.patch(
-      "http://localhost:3000/quiz/saveHighScore",
+      `${import.meta.env.VITE_BACKEND_URL}/quiz/saveHighScore`,
       { hiScore: score },
       { withCredentials: true }
     );

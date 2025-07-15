@@ -56,7 +56,7 @@ export default function ModalComponent({isUpdate,opener,setModalState,question,s
     }
 
     try{
-      const res = await axios.patch(`http://localhost:3000/quiz/updateQuestion/${questionState._id}`,{
+      const res = await axios.patch(`${import.meta.env.VITE_BACKEND_URL}/quiz/updateQuestion/${questionState._id}`,{
         question: questionState.question,
         options : [...questionState.options],
         correctAnswer: questionState.correctOption
@@ -83,7 +83,7 @@ export default function ModalComponent({isUpdate,opener,setModalState,question,s
     //muneer ne api ka format nahi dia abhi tak
     console.log("Deleting ",questionState._id);
     try{
-      const res = await axios.delete(`http://localhost:3000/quiz/deleteQuestion/${questionState._id}`);
+      const res = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/quiz/deleteQuestion/${questionState._id}`);
       console.log(res.data);
       toast.success("Question deleted successfully");
       setUpdatePage(p=>!p);

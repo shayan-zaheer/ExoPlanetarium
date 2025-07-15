@@ -33,7 +33,7 @@ const Card = () => {
     
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/auth/forgetPassword",
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/forgetPassword`,
         { email: forgetEmail }
       );
       setLoading(false);
@@ -57,7 +57,7 @@ const Card = () => {
     
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/auth/verifyOtp",
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/verifyOtp`,
         { email: forgetEmail, otp }
       );
       setLoading(false);
@@ -80,7 +80,7 @@ const Card = () => {
     if (newPassword === confirmPassword) {
       try {
         const response = await axios.patch(
-          `http://localhost:3000/api/auth/resetPassword/`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/auth/resetPassword/`,
           { email: forgetEmail, password: newPassword }
         );
         setLoading(false);

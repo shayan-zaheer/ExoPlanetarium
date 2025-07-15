@@ -23,7 +23,7 @@ const AddQuiz = () => {
     useEffect(() => {
         const fetchData = async () => {
             const questionsData = await axios.get(
-                "http://localhost:3000/quiz/getQuestions",
+                `${import.meta.env.VITE_BACKEND_URL}/quiz/getQuestions`,
                 { withCredentials: true }
             );
             setQuestions(questionsData.data.data.questions);

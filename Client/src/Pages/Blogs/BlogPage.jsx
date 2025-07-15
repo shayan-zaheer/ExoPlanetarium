@@ -14,7 +14,7 @@ function BlogPage() {
             setLoading(true);
             try {
                 const response = await axios.get(
-                    `http://localhost:3000/api/post/get-post/${slug}`
+                    `${import.meta.env.VITE_BACKEND_URL}/api/post/get-post/${slug}`
                 );
                 setLoading(false);
                 if (response.data) {

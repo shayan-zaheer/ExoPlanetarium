@@ -58,7 +58,7 @@ export default function AddQnA() {
     }
     console.log(obj);
     const response = await axios.post(
-      "http://localhost:3000/quiz/addQuestion",
+      `${import.meta.env.VITE_BACKEND_URL}/quiz/addQuestion`,
       obj
     );
     if (response.status === 201) {

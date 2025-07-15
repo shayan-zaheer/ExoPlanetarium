@@ -43,7 +43,7 @@ const Card = ({ isLogin, setPass, params, isSignUp }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/auth/signIn",
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/signIn`,
         { email, password },
         { withCredentials: true }
       );
@@ -67,7 +67,7 @@ const Card = ({ isLogin, setPass, params, isSignUp }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/auth/signUp",
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/signUp`,
         { email, username, password },
         { withCredentials: true }
       );

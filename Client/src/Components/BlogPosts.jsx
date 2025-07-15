@@ -13,7 +13,7 @@ function DashPosts() {
       try {
         setLoading(true);
         const posts = await axios.get(
-          "http://localhost:3000/api/post/get-all-posts"
+          "          `${import.meta.env.VITE_BACKEND_URL}/api/post/get-all-posts`"
         );
         setLoading(false);
         setAllPosts(posts.data.posts);

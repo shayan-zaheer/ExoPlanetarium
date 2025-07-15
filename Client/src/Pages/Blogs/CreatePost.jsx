@@ -66,7 +66,7 @@ function CreatePost() {
             setDataSuccess(false);
             setDataLoading(true);
             const res = await axios.post(
-                "http://localhost:3000/api/post/create-post",
+                `${import.meta.env.VITE_BACKEND_URL}/api/post/create-post`,
                 {
                     ...formData,
                     userId: "12343",
