@@ -1,64 +1,75 @@
+const axios = require("axios");
 
-const axios = require("axios")
+const openRouterAPI = axios.create({
+    baseURL: "https://openrouter.ai/api/v1",
+    headers: {
+        Authorization: `Bearer ${process.env.OR_TOKEN}`,
+        "Content-Type": "application/json",
+    },
+    timeout: 15000,
+});
 
-exports.createQuestion = async (userInp)=>{
-    let llmRes;
-
-    try{
-
-        llmRes = await axios.post("https://openrouter.ai/api/v1/chat/completions",{
-            model: "meta-llama/llama-3.1-8b-instruct:free",
+exports.createQuestion = async (userInp) => {
+    try {
+        const response = await openRouterAPI.post("/chat/completions", {
+            model: "google/gemma-2-9b-it:free",
             messages: [
-      
-                {"role": "user", "content": userInp},
-                {"role": "system", "content": "Conver the user's content into a STAND ALONE QUESTION DONT SAY ANYTHING ELSE JUST RETURN THE STANDALONE QUESTION"},
-      
-    ],
-},{headers:{
-    "Authorization": `Bearer ${process.env.OR_TOKEN}`, 
-    "Content-Type": "application/json"
-}})
-console.log(llmRes.data.choices)
-return llmRes.data.choices[0].message.content;
-}
-catch(e){
-    console.log(e)
-    return e
-}
-}
+                {
+                    role: "system",
+                    content:
+                        "Convert the user's question into a clear, standalone search query. Return only the query, nothing else.",
+                },
+                { role: "user", content: userInp },
+            ],
+            max_tokens: 100,
+            temperature: 0.1,
+        });
 
-exports.getFinalAns = async (context, history, actualQuestion)=>{
-    let llmRes;
+        console.log("✅ OpenRouter response received");
+        const result = response.data.choices[0].message.content.trim();
+        console.log("🎯 Standalone question created:", result);
+        return result;
+    } catch (e) {
+        console.error("❌ Error in createQuestion:");
+        console.error("Status:", e.response?.status);
+        console.error("Data:", e.response?.data);
+        console.error("Message:", e.message);
 
-    try{
+        if (e.response?.status === 401) {
+            console.log("🔑 Authentication error - check OR_TOKEN");
+        } else if (e.response?.status === 429) {
+            console.log("⏱️ Rate limit exceeded");
+        } else if (e.response?.status === 503) {
+            console.log("🔧 Service unavailable");
+        } else if (e.code === "ECONNREFUSED") {
+            console.log("🌐 Network connection failed");
+        }
 
-        llmRes = await axios.post("https://openrouter.ai/api/v1/chat/completions",{
-            model: "meta-llama/llama-3.1-8b-instruct:free",
+        console.log("🔄 Falling back to original input");
+        return userInp;
+    }
+};
+
+exports.getFinalAns = async (context, history, actualQuestion) => {
+    try {
+        const response = await openRouterAPI.post("/chat/completions", {
+            model: "google/gemma-2-9b-it:free",
             messages: [
-      
-                {"role": "user", "content": actualQuestion},
-                {"role": "system", "content": `You are an expert on exoplanets and must answer questions solely based on the provided "Context" and "History". 
-        You are **NOT** allowed to provide information outside of these sources. 
-        If the answer is not found in either the "Context" or "History", politely state that the information is unavailable and direct the user to NASA's exoplanet page: https://science.nasa.gov/exoplanets/
+                {
+                    role: "system",
+                    content: `You are an exoplanet expert. Answer based only on the provided context. Be concise and informative.
 
-        Context: ${context}
-        History: ${history}
+Context: ${context}`,
+                },
+                { role: "user", content: actualQuestion },
+            ],
+            max_tokens: 300,
+            temperature: 0.2,
+        });
 
-        Important Notes:
-        - If a question is unrelated to exoplanets or beyond the given data, respond with "I'm sorry, I don't have information on that. Please check NASA's exoplanet page for more details."
-        - Do not attempt to generate or guess information beyond what is provided.
-
-                    `},
-      
-    ],
-},{headers:{
-    "Authorization": `Bearer ${process.env.OR_TOKEN}`, 
-    "Content-Type": "application/json"
-}})
-// console.log(llmRes.data.choices)
-return llmRes.data.choices[0].message;
-}
-catch(e){
-    return e
-}
-}
+        return response.data.choices[0].message.content.trim();
+    } catch (e) {
+        console.error("Error in getFinalAns:", e.response?.data || e.message);
+        return "I'm having trouble accessing the information right now. Please try asking your question again.";
+    }
+};

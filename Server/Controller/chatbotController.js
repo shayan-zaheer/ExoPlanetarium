@@ -1,34 +1,79 @@
-const asyncErrorHandler = require("../Utils/asyncErrorHandler");
 const llmHandler = require("../Utils/AiUtils/llmHandler");
 const { getVectors } = require("../Utils/AiUtils/pcQuery");
 
-exports.handlePrompt = asyncErrorHandler(async (req, res, next) => {
-
-    const {userInp} = req.body;
-    const {convHistory} = req.body;
-
-    const standaloneQues = await llmHandler.createQuestion(userInp,convHistory);
-    console.log("Standalone:",standaloneQues);
+exports.handlePrompt = async (req, res, next) => {
+    const startTime = Date.now();
     
-    const similarVecs = await getVectors(standaloneQues)
-  
+    try {
+        const { userInp, convHistory = [] } = req.body;
 
-    console.log("Retrieved information: ",similarVecs)
+        if (!userInp || userInp.trim().length === 0) {
+            return res.status(400).json({
+                status: "Error",
+                message: "Please provide a valid question",
+            });
+        }
 
-    let nearestMatches = similarVecs.map((v,i)=>{
-        return v.metadata.text;
-    })
+        const standaloneQues = await Promise.race([
+            llmHandler.createQuestion(userInp, convHistory),
+            new Promise((_, reject) => 
+                setTimeout(() => reject(new Error("Question creation timeout")), 10000)
+            )
+        ]);
+        console.log("Standalone question:", standaloneQues);
 
-    nearestMatches = nearestMatches.join("\n");
+        const similarVecs = await getVectors(standaloneQues);
+        console.log(`Found ${similarVecs.length} relevant matches`);
 
-    let history = convHistory.join("\n");
+        if (!similarVecs || similarVecs.length === 0) {
+            return res.status(200).json({
+                status: "success",
+                message: "Response Generated",
+                data: {
+                    content: "I don't have specific information about that topic in my exoplanet knowledge base. Please try asking about exoplanet discovery, characteristics, or recent findings.",
+                    role: "assistant"
+                },
+            });
+        }
 
-    const result = await llmHandler.getFinalAns(nearestMatches,history,userInp)
+        const nearestMatches = similarVecs
+            .map(v => v.metadata?.text)
+            .filter(text => text && text.length > 0)
+            .join("\n\n");
 
-    console.log(result)
-    res.status(200).send({
-        status:"Success",
-        message:"Response Fetched Successfully",
-        data:result
-    })
-  });
+        console.log("🤖 Generating response...");
+        const result = await Promise.race([
+            llmHandler.getFinalAns(nearestMatches, "", userInp),
+            new Promise((_, reject) => 
+                setTimeout(() => reject(new Error("Response generation timeout")), 15000)
+            )
+        ]);
+
+        const responseTime = Date.now() - startTime;
+        console.log(`Response generated in ${responseTime}ms`);
+
+        res.status(200).json({
+            status: "success",
+            message: "Response Generated Successfully",
+            data: {
+                content: result,
+                role: "assistant"
+            },
+            responseTime: `${responseTime}ms`
+        });
+
+    } catch (err) {
+        const responseTime = Date.now() - startTime;
+        console.error(`Error in handlePrompt (${responseTime}ms):`, err.message);
+        
+        res.status(200).json({
+            status: "Success",
+            message: "Response Generated",
+            data: {
+                content: "I'm experiencing some technical difficulties. Please try rephrasing your question or ask about exoplanet topics.",
+                role: "assistant"
+            },
+            responseTime: `${responseTime}ms`
+        });
+    }
+};

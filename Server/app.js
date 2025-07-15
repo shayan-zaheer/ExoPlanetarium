@@ -14,7 +14,7 @@ app.use(cookieParser());
 
 const allowedOrigins = [
   "http://localhost:5173",
-  
+
 ];
 
 const corsOptions = {
@@ -31,7 +31,6 @@ app.use("/chatbot", chatbotRouter);
 app.use("/chatbot", chatbotRouter);
 app.use("/api/post", postRouter);
 
-// Error Handler of production environment
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || "Internal Server Error";

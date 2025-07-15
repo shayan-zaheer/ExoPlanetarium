@@ -1,31 +1,27 @@
+const { Pinecone } = require("@pinecone-database/pinecone");
+const { HfInference } = require("@huggingface/inference");
 
-const { Pinecone } = require('@pinecone-database/pinecone');
-const {HfInference } = require("@huggingface/inference")
-
-exports.getVectors = async (query) =>{
+exports.getVectors = async (query) => {
     const pc = new Pinecone({
-        apiKey:process.env.PC_TOKEN
-    })
+        apiKey: process.env.PC_TOKEN,
+    });
 
-    const index = pc.index("exoplanetarium")
+    const index = pc.index("exoplanetarium");
 
-
-    const hf = new HfInference(process.env.HF_TOKEN)
+    const hf = new HfInference(process.env.HF_TOKEN);
+        console.log(process.env.HF_TOKEN);
 
     const vecValues = await hf.featureExtraction({
-        model:"sentence-transformers/all-MiniLM-L6-v2",
-        inputs:query
-    })
+        model: "BAAI/bge-small-en-v1.5",
+        inputs: query,
+    });
 
-
-    const queryResponse = await index.namespace('nsac').query({
+    const queryResponse = await index.namespace("nsac").query({
         vector: vecValues,
         topK: 3,
         includeValues: true,
-        includeMetadata:true
+        includeMetadata: true,
     });
 
-    
-
     return queryResponse.matches;
-}
+};
