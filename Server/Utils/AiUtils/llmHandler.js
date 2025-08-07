@@ -10,6 +10,7 @@ const openRouterAPI = axios.create({
 });
 
 exports.createQuestion = async (userInp) => {
+    console.log(userInp);
     try {
         const response = await openRouterAPI.post("/chat/completions", {
             model: "google/gemma-2-9b-it:free",
@@ -24,8 +25,7 @@ exports.createQuestion = async (userInp) => {
             max_tokens: 100,
             temperature: 0.1,
         });
-
-        console.log("✅ OpenRouter response received");
+        
         const result = response.data.choices[0].message.content.trim();
         console.log("🎯 Standalone question created:", result);
         return result;
