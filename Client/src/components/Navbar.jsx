@@ -74,9 +74,9 @@ const Navbar = () => {
         <ListItem button component={Link} to="/exoplanet-quiz">
           <ListItemText primary="Quiz" />
         </ListItem>
-        <ListItem button component={Link} to="/blogs">
+        {/* <ListItem button component={Link} to="/blogs">
           <ListItemText primary="Blogs" />
-        </ListItem>
+        </ListItem> */}
         {user?.role === "admin" && (
           <ListItem button component={Link} to="/create-post">
             <ListItemText primary="Create Post" />
@@ -168,7 +168,7 @@ const Navbar = () => {
             >
               Quiz
             </Button>
-            <Button
+            {/* <Button
               color="inherit"
               component={Link}
               to="/blogs"
@@ -181,7 +181,7 @@ const Navbar = () => {
               }}
             >
               Blogs
-            </Button>
+            </Button> */}
             {user?.role === "admin" && (
               <Button
                 color="inherit"

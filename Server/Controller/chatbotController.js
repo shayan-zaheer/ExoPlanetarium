@@ -14,15 +14,9 @@ exports.handlePrompt = async (req, res, next) => {
             });
         }
 
-        const standaloneQues = await Promise.race([
-            llmHandler.createQuestion(userInp, convHistory),
-            new Promise((_, reject) => 
-                setTimeout(() => reject(new Error("Question creation timeout")), 10000)
-            )
-        ]);
-        console.log("Standalone question:", standaloneQues);
+        console.log("Using direct user input for vector search:", userInp);
 
-        const similarVecs = await getVectors(standaloneQues);
+        const similarVecs = await getVectors(userInp);
         console.log(`Found ${similarVecs.length} relevant matches`);
 
         if (!similarVecs || similarVecs.length === 0) {
